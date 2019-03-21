@@ -11,11 +11,11 @@ import React, { Component } from 'react';
  * This project was developed using Jetbrains PhpStorm IDE.
  */
 
-// TODO: Style screen
-// TODO: find usage for ->
+// TODO: Style calculator
+// TODO: -> should move history into current operations.
 // TODO: apply usage for +/-
-// TODO: evaluate based on inputs, as opposed ot when equals is hit.
-//      TODO: This evaluation would consider all operation buttons to be like 'equals'.
+
+//TODO: code cleanup
 
 export default class Calculator extends Component {
     constructor(props) {
@@ -23,7 +23,8 @@ export default class Calculator extends Component {
 
         this.state = {
             operations: "",
-            result: ""
+            result: "",
+            history: ""
         }
     }
     render() {
@@ -31,11 +32,14 @@ export default class Calculator extends Component {
             <div>
                 <div class="frame">
                     <div class="screen">
+                        <div className="screen_result">
+                            {this.state.result}
+                        </div>
                         <div class="screen_input">
                             {this.state.operations}
                         </div>
-                        <div class="result">
-                            {this.state.result}
+                        <div class="screen_history">
+                            {this.state.history}
                         </div>
                     </div>
                     <div class="buttons">
@@ -47,17 +51,17 @@ export default class Calculator extends Component {
                         {this.renderInputButton('4')}
                         {this.renderInputButton('5')}
                         {this.renderInputButton('6')}
-                        {this.renderInputButton('X')}
-                        {this.renderInputButton('/')}
+                        {this.renderOperationButton('X')}
+                        {this.renderOperationButton('/')}
                         {this.renderInputButton('1')}
                         {this.renderInputButton('2')}
                         {this.renderInputButton('3')}
-                        {this.renderInputButton('-')}
+                        {this.renderOperationButton('-')}
                         {this.renderOperationButton('=')}
                         {this.renderOperationButton('C')}
                         {this.renderInputButton('0')}
                         {this.renderInputButton('.')}
-                        {this.renderInputButton('+')}
+                        {this.renderOperationButton('+')}
                     </div>
                 </div>
             </div>
@@ -65,22 +69,40 @@ export default class Calculator extends Component {
     }
 
     handleClick(c, isOperation) {
+        let newOperations = this.state.operations;
+
         if (isOperation) {
             // Clear operation
-            if (c === 'C')
-            {
+            if (c === 'C') {
                 this.setState({operations: ""});
+                this.setState({result: ""});
+                return;
             }
-            if (c === '=')
-            {
-                this.setState({result: ""}); // clear result
-                let result = parseString(this.state.operations + '=');
-                this.setState({result: result});
+            else if ( c === '+/-' ) {
+                return;
+            }
+            else if ( c === '->' ) {
+                return;
+            }
+            else {
+                if ( c !== '=') {
+                   newOperations = newOperations + c;
+                }
+                else {
+                    this.setState({operations: parseString(newOperations + '=')});
+                    this.setState({history: newOperations});
+                    return;
+                }
             }
         }
         else {
-            this.setState({operations: this.state.operations + c});
+            newOperations = newOperations + c;
         }
+
+        this.setState({operations: newOperations});
+        this.setState({result: ""});
+        let result = parseString(newOperations + '=');
+        this.setState({result: result});
 
     }
 
@@ -173,6 +195,13 @@ function parseString(input) {
 }
 
 function performOperation(operation, cur, val) {
+    if (cur.isNaN) {
+        cur = 0;
+    }
+    if (val.isNaN) {
+        val = 0;
+    }
+
     switch(operation) {
         case '+':
             return (cur + val);
@@ -182,5 +211,7 @@ function performOperation(operation, cur, val) {
             return (cur * val);
         case '/':
             return (cur / val);
+        default:
+            return cur;
     }
 }

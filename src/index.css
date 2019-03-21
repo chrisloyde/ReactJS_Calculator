@@ -20,13 +20,6 @@ code {
   border: black 2px solid;
 }
 
-.screen {
-  border: black 2px solid;
-  height: 100px;
-  width: 100%;
-  text-align: right;
-}
-
 .buttons {
   padding-top: 10px;
 
@@ -48,4 +41,25 @@ code {
   grid-row-start: 3;
   grid-row-end: 5;
   grid-column-start: 5;
+}
+
+.screen {
+  border: black 2px solid;
+  height: 100px;
+  width: 100%;
+  text-align: right;
+
+  display: grid;
+  grid-template-rows: 50px 25px 25px;
+}
+
+.screen_result {
+  font-size: 32px;
+}
+
+.screen_input {
+
+}
+
+.screen_history {
 }
