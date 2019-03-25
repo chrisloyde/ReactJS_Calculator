@@ -11,11 +11,8 @@ import React, { Component } from 'react';
  * This project was developed using Jetbrains PhpStorm IDE.
  */
 
-// TODO: Style calculator
-// TODO: -> should move history into current operations.
 // TODO: apply usage for +/-
-
-//TODO: code cleanup
+// TODO: code cleanup
 
 export default class Calculator extends Component {
     constructor(props) {
@@ -72,7 +69,6 @@ export default class Calculator extends Component {
         let newOperations = this.state.operations;
 
         if (isOperation) {
-            // Clear operation
             if (c === 'C') {
                 this.setState({operations: ""});
                 this.setState({result: ""});
@@ -81,18 +77,19 @@ export default class Calculator extends Component {
             else if ( c === '+/-' ) {
                 return;
             }
+
             else if ( c === '->' ) {
-                return;
+                if (this.state.history.toString().length > 0) {
+                    newOperations = this.state.history;
+                    this.setState({operations: newOperations});
+                    this.setState({history: ''});
+                }
+            }
+            else if (c === '='){
+                this.setState({history: newOperations});
             }
             else {
-                if ( c !== '=') {
-                   newOperations = newOperations + c;
-                }
-                else {
-                    this.setState({operations: parseString(newOperations + '=')});
-                    this.setState({history: newOperations});
-                    return;
-                }
+                newOperations = newOperations + c;
             }
         }
         else {
@@ -153,29 +150,27 @@ function parseString(input) {
     let operations = [];
     let operationsIndex = 0;
 
+
     for (let i = 0; i < input.length; i++) {
         let translatedCharacter = input.charCodeAt(i) - 48;
 
         if ((translatedCharacter >= 0 && translatedCharacter <= 9) || input[i] === '.') {
-            // add number to tempStorage
-            if (input[i] !== '.') {
-                tempStorage[tempIndex] = translatedCharacter;
+            if (input[i] === '.') {
+                tempStorage[tempIndex] = input[i];
             }
             else {
-                tempStorage[tempIndex] = input[i];
+                tempStorage[tempIndex] = translatedCharacter;
             }
             tempIndex++;
         }
         else {
-            // add operation to operations array
             operations[operationsIndex] = input[i];
             operationsIndex++;
 
-            // convert tempStorage to a number
             inputs[inputIndex] = Number.parseFloat(tempStorage.join('').toString());
+
             inputIndex++;
 
-            // clear tempStorage
             tempIndex = 0;
             tempStorage = [];
         }
@@ -201,6 +196,8 @@ function performOperation(operation, cur, val) {
     if (val.isNaN) {
         val = 0;
     }
+
+    //alert(cur + ' ' + operation + ' ' + val);
 
     switch(operation) {
         case '+':

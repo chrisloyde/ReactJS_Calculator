@@ -17,7 +17,9 @@ code {
   margin: auto;
   padding: 10px;
   width: 300px;
-  border: black 2px solid;
+  border-radius: 10px;
+  background-color: gray;
+  box-shadow: darkgray 8px 8px 8px;
 }
 
 .buttons {
@@ -31,30 +33,45 @@ code {
 }
 
 .calculator_button {
+  border:none;
   width: 50px;
   height: 50px;
+  border-radius: 2px;
+  background-color:ghostwhite;
+  box-shadow: black 1px 1px;
 }
 
 .calculator_button_big {
+  border:none;
   height: 110px;
   width: 50px;
   grid-row-start: 3;
   grid-row-end: 5;
   grid-column-start: 5;
+  border-radius: 2px;
+  background-color: ghostwhite;
+  box-shadow: black 1px 1px;
 }
 
 .screen {
-  border: black 2px solid;
   height: 100px;
   width: 100%;
   text-align: right;
 
   display: grid;
   grid-template-rows: 50px 25px 25px;
+  background-color: lightblue;
+  border-radius: 3px;
+
+  border-top: black solid 1px;
+  border-left: black solid 1px;
+  border-right: white solid 1px;
+  border-bottom: white solid 1px;
 }
 
 .screen_result {
   font-size: 32px;
+  font-weight: bold;
 }
 
 .screen_input {
@@ -62,4 +79,5 @@ code {
 }
 
 .screen_history {
+  font-size: 10px;
 }
