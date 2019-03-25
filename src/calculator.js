@@ -11,8 +11,8 @@ import React, { Component } from 'react';
  * This project was developed using Jetbrains PhpStorm IDE.
  */
 
-// TODO: apply usage for +/-
-// TODO: code cleanup
+// TODO: Improve style (maybe colored buttons?)
+// TODO: cleanup index.html, add favicon, meta, etc.
 
 export default class Calculator extends Component {
     constructor(props) {
@@ -27,19 +27,19 @@ export default class Calculator extends Component {
     render() {
         return (
             <div>
-                <div class="frame">
-                    <div class="screen">
+                <div className="frame">
+                    <div className="screen">
                         <div className="screen_result">
                             {this.state.result}
                         </div>
-                        <div class="screen_input">
+                        <div className="screen_input">
                             {this.state.operations}
                         </div>
-                        <div class="screen_history">
+                        <div className="screen_history">
                             {this.state.history}
                         </div>
                     </div>
-                    <div class="buttons">
+                    <div className="buttons">
                         {this.renderInputButton('7')}
                         {this.renderInputButton('8')}
                         {this.renderInputButton('9')}
@@ -65,6 +65,12 @@ export default class Calculator extends Component {
         )
     }
 
+    /**
+     * Handle's input from user to calculate and display results.
+     *
+     * @param c :value from calculator input that needs to be checked.
+     * @param isOperation :operation represents anything that is not a number.
+     */
     handleClick(c, isOperation) {
         let newOperations = this.state.operations;
 
@@ -75,7 +81,7 @@ export default class Calculator extends Component {
                 return;
             }
             else if ( c === '+/-' ) {
-                return;
+                newOperations = insertPlusMinus(newOperations);
             }
 
             else if ( c === '->' ) {
@@ -89,16 +95,21 @@ export default class Calculator extends Component {
                 this.setState({history: newOperations});
             }
             else {
+                // if operation is an operation that should be displayed, display it.
                 newOperations = newOperations + c;
             }
         }
         else {
+            // display everything that is not an operation.
             newOperations = newOperations + c;
         }
 
+        // update operations state to newOperations. This updates the screen to the calculated result.
         this.setState({operations: newOperations});
         this.setState({result: ""});
-        let result = parseString(newOperations + '=');
+        // S and =s are added after the fact os parseString knows how to read the operation.
+        // S represents the start, equals represents the end.
+        let result = parseString('S'+newOperations+'=');
         this.setState({result: result});
 
     }
@@ -108,7 +119,7 @@ export default class Calculator extends Component {
           <CalculatorButton
               isOperation={false}
               text={c}
-              onClick={() => this.handleClick(c, false)}
+              onClick={() => this.handleClick(c, false)} // function passed to parent Calculator.
           />
         );
     }
@@ -118,7 +129,7 @@ export default class Calculator extends Component {
             <CalculatorButton
                 isOperation={true}
                 text={c}
-                onClick={() => this.handleClick(c, true)}
+                onClick={() => this.handleClick(c, true)} // function passed to parent Calculator.
             />
         );
     }
@@ -126,10 +137,15 @@ export default class Calculator extends Component {
 }
 
 
+/**
+ * Class for a calculator button.
+ * Holds its own text value (what is displayed on the calculator) and passes it's onClick event to the caller.
+ */
 class CalculatorButton extends Component {
     render() {
         return (
             <button
+                // determine which div class to use based on button value.
                 className={(this.props.text !== '=') ?"calculator_button" : "calculator_button_big"}
                 onClick={() => this.props.onClick()}
             >
@@ -139,65 +155,180 @@ class CalculatorButton extends Component {
     }
 }
 
-function parseString(input) {
-    let result = 0;
+/**
+ * The insertPlustMinus (+/- button) function is used to change the most recent
+ * number from positive to negative, or change evaluation from addition to subtraction.
+ *
+ * Parses through @param inputStr from the end to the start, when it comes across the first operator it decides
+ * whether it needs to change the sign (from + to - or vice versa) or add a negative sign.
+ *
+ * @param inputStr :String to have modified.
+ * @returns {string} :The modified string.
+ */
+function insertPlusMinus(inputStr) {
+    let copyStr = "";
+    for (let i = inputStr.length-1; i >= 0; i--) {
+        let character = inputStr[i];
+        let translatedCharacter = inputStr.charCodeAt(i) - 48;
 
-    let inputs = [];
-    let inputIndex = 0;
-    let tempStorage = [];
+        // Ignore numbers, decimals, or the = sign since they aren't relevant.
+        if (translatedCharacter >= 0 && translatedCharacter <= 9) {
+            continue;
+        }
+
+        if (character === '.') {
+            continue;
+        }
+
+        if (character === '=') {
+            continue;
+        }
+
+        // On first operator found determine what needs to happen.
+        copyStr = inputStr.substr(0, i); // get a substring from the beginning of @param inputStr to operator index.
+
+        // Swap signs if operator is a + sign, this transforms addition to subtraction.
+        if (inputStr[i] === '+') {
+            copyStr += '-';
+        }
+
+        // Swap sign if operator is a - sign. However this should not be done if the - represents a negative number.
+        // Since positive numbers are not represented by the + sign, one is not appended to replace a negative sign.
+        // Note that the length is also checked, this is to ensure that a positive sign is not appended at the start
+        // of the inputStr when changing from a negative starting value to a positive starting value.
+        // This transforms subtraction into addition.
+        else if (inputStr[i] === '-' && inputStr[i-1] !== 'X' && inputStr[i-1] !== '/' && inputStr.length > 2) {
+            alert(inputStr);
+            copyStr += '+';
+        }
+
+        // This last statement inputs a - sign to change a positive number to a negative number.
+        // The previous if checks (to check for multiplication, division, and string length) are added to avoid adding
+        // additional - signs when the above conditional fails.
+        else if (inputStr[i-1] !== 'X' && inputStr[i-1] !== '/' && inputStr.length > 2) {
+            copyStr += (inputStr[i] + '-');
+        }
+
+        // Append the rest of @param inputStr after our string.
+        copyStr += (inputStr.substr(i+1, inputStr.length));
+
+        return copyStr; // return the new string.
+    }
+
+    // If no modifiable operator was found, append - sign at the beginning, to indicate a starting negative number.
+    return ('-' + inputStr);
+}
+
+/**
+ * Parses a string, searches for operations and numerical inputs, then calculates the string.
+ *
+ * @param inputStr :String representing a calculation.
+ * @returns {*} :Result of calculation.
+ */
+function parseString(inputStr) {
+
+    let tempStorage = []; // Temporary storage which will be used to transform a "string" into a number.
     let tempIndex = 0;
 
-    let operations = [];
+    let inputs = []; // Inputs in the evaluation.
+    let inputsIndex = 0;
+
+    let operations = []; // Operations in the evaluation (ignores =, S, and -.
     let operationsIndex = 0;
 
+    let num = 0;
 
-    for (let i = 0; i < input.length; i++) {
-        let translatedCharacter = input.charCodeAt(i) - 48;
+    // String is parsed backwards so negatives can be properly applied.
+    for (let i = inputStr.length-1; i >= 0; i--) {
+        let character = inputStr[i]; // character is the ASCII representation.
+        let translatedCharacter = inputStr.charCodeAt(i) - 48; // translated character is the real number.
 
-        if ((translatedCharacter >= 0 && translatedCharacter <= 9) || input[i] === '.') {
-            if (input[i] === '.') {
-                tempStorage[tempIndex] = input[i];
+        // If translated character is a number or if the character is a decimal then we treat it as a number.
+        if ((translatedCharacter >= 0 && translatedCharacter <= 9) || character === '.') {
+            if (character === '.') {
+                tempStorage[tempIndex] = character; // decimals are stored as is.
             }
             else {
-                tempStorage[tempIndex] = translatedCharacter;
+                tempStorage[tempIndex] = translatedCharacter; // store translated characters.
             }
             tempIndex++;
         }
         else {
-            operations[operationsIndex] = input[i];
-            operationsIndex++;
+            // Ignore '=' character.
+            if (character === '=') {
+                continue;
+            }
 
-            inputs[inputIndex] = Number.parseFloat(tempStorage.join('').toString());
+            // Ignore S and -, and add any other operations to operations array.
+            if (character !== 'S' && character !== '-') {
+                operations[operationsIndex] = character;
+                operationsIndex++;
+            }
 
-            inputIndex++;
+            // If tempStorage holds a number
+            if (tempIndex > 0) {
+                // tempStorage is parsed into a float so the calculator can handle decimal evaluations.
+                num = Number.parseFloat(tempStorage.reverse().join('').toString());
 
-            tempIndex = 0;
-            tempStorage = [];
+                // If the current character is a - sign, the parsed number is converted to negative.
+                // The calculator will then handle subtraction as adding a positive number to a negative number.
+                if (character === '-') {
+                    // If a multiplication or division sign is seen just ahead of the operator (remember the string is
+                    // being evaluated backwards) the additional addition operator should not be added.
+                    // The only time the addition operator is added is when there should be a subtraction operator.
+                    if (inputStr[i-1] !== 'X' && inputStr[i-1] !== '/') {
+                        operations[operationsIndex] = '+';
+                        operationsIndex++;
+                    }
+                    num = num*-1;
+                }
+
+                // Add num to inputs array.
+                inputs[inputsIndex] = num;
+                inputsIndex++;
+
+                // Clear tempStorage.
+                tempIndex = 0;
+                tempStorage = [];
+
+            }
         }
+
     }
 
-    operationsIndex = 0;
-    result = inputs[0];
-    inputIndex = 1;
+    // Reverse our inputs and operations.
+    inputs = inputs.reverse();
+    operations = operations.reverse().concat("="); // Add an = sign to the end so evaluation knows when to end.
 
+    operationsIndex = 0; // Reset operations index to 0.
+    let result = inputs[0]; // Result is assigned to the first value in inputs array.
+    inputsIndex = 1; // Set inputsIndex to 1, since result already holds the first value.
+
+    // The evaluation loop runs until end of calculation.
     while(operations[operationsIndex] !== '=') {
-        result = performOperation(operations[operationsIndex], result, inputs[inputIndex]);
+        result = performOperation(operations[operationsIndex], result, inputs[inputsIndex]);
         operationsIndex++;
-        inputIndex++;
+        inputsIndex++;
     }
 
     return result;
 }
 
+/**
+ * Performs calculations.
+ *
+ * @param operation :The operator (represented as a character) to calculate.
+ * @param cur :First value in the calculation (left hand side).
+ * @param val :Second value in the calculation (right hand side).
+ * @returns {*} :Integer result of calculation.
+ */
 function performOperation(operation, cur, val) {
-    if (cur.isNaN) {
+    if (cur === undefined) {
         cur = 0;
     }
-    if (val.isNaN) {
+    if (val === undefined) {
         val = 0;
     }
-
-    //alert(cur + ' ' + operation + ' ' + val);
 
     switch(operation) {
         case '+':
