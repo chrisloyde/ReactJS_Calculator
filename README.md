@@ -7,5 +7,5 @@
 
  This project was developed using Jetbrains PhpStorm IDE.
  
- App is still in development, once development is complete I will host
- a link to the final product.
+ App at this point is functional and live, however I do plan on continuing development and improving the style:
+ [Link to Live](https://calculator.petersonchris.me)
