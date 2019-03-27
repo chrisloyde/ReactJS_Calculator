@@ -11,8 +11,7 @@ import React, { Component } from 'react';
  * This project was developed using Jetbrains PhpStorm IDE.
  */
 
-// TODO: Improve style (maybe colored buttons?)
-// TODO: cleanup index.html, add favicon, meta, etc.
+// TODO: Keyboard input functionality
 
 export default class Calculator extends Component {
     constructor(props) {
@@ -40,34 +39,39 @@ export default class Calculator extends Component {
                         </div>
                     </div>
                     <div className="buttons">
-                        {this.renderInputButton('7')}
-                        {this.renderInputButton('8')}
-                        {this.renderInputButton('9')}
-                        {this.renderOperationButton('+/-')}
-                        {this.renderOperationButton('->')}
-                        {this.renderInputButton('4')}
-                        {this.renderInputButton('5')}
-                        {this.renderInputButton('6')}
-                        {this.renderOperationButton('X')}
-                        {this.renderOperationButton('/')}
-                        {this.renderInputButton('1')}
-                        {this.renderInputButton('2')}
-                        {this.renderInputButton('3')}
-                        {this.renderOperationButton('-')}
-                        {this.renderOperationButton('=')}
-                        {this.renderOperationButton('C')}
-                        {this.renderInputButton('0')}
-                        {this.renderInputButton('.')}
-                        {this.renderOperationButton('+')}
+                        {this.renderInputButton('7', "")}
+                        {this.renderInputButton('8', "")}
+                        {this.renderInputButton('9', "")}
+                        {this.renderOperationButton('+/-', "steelblue")}
+                        {this.renderOperationButton('->', "steelblue")}
+                        {this.renderInputButton('4', "")}
+                        {this.renderInputButton('5', "")}
+                        {this.renderInputButton('6', "")}
+                        {this.renderOperationButton('X', "steelblue")}
+                        {this.renderOperationButton('/', "steelblue")}
+                        {this.renderInputButton('1', "")}
+                        {this.renderInputButton('2', "")}
+                        {this.renderInputButton('3', "")}
+                        {this.renderOperationButton('-', "steelblue")}
+                        {this.renderOperationButton('=', "red")}
+                        {this.renderOperationButton('C', "red")}
+                        {this.renderInputButton('0', "")}
+                        {this.renderInputButton('.', "")}
+                        {this.renderOperationButton('+', "steelblue")}
                     </div>
-                    version: 1.0.1
+                    <a className={"git_link"} href={"https://gitea.gildedgames.com/Chris/ReactJS_Calculator"} target={"_blank"}>
+                        Git
+                    </a>
+                    <span className={"version"}> version: 1.0.1 </span>
+
+
                 </div>
             </div>
         )
     }
 
     /**
-     * Handle's input from user to calculate and display results.
+     * Handles input from user to calculate and display results.
      *
      * @param c :value from calculator input that needs to be checked.
      * @param isOperation :operation represents anything that is not a number.
@@ -117,21 +121,23 @@ export default class Calculator extends Component {
 
     }
 
-    renderInputButton(c) {
+    renderInputButton(c, bgColor) {
         return (
           <CalculatorButton
               isOperation={false}
               text={c}
+              bgColor={bgColor}
               onClick={() => this.handleClick(c, false)} // function passed to parent Calculator.
           />
         );
     }
 
-    renderOperationButton(c) {
+    renderOperationButton(c, bgColor) {
         return (
             <CalculatorButton
                 isOperation={true}
                 text={c}
+                bgColor={bgColor}
                 onClick={() => this.handleClick(c, true)} // function passed to parent Calculator.
             />
         );
@@ -149,7 +155,9 @@ class CalculatorButton extends Component {
         return (
             <button
                 // determine which div class to use based on button value.
-                className={(this.props.text !== '=') ?"calculator_button" : "calculator_button_big"}
+                className={"calculator_button_root"}
+                id={(this.props.text !== '=') ? "calculator_button" : "calculator_button_big"}
+                style={{backgroundColor:this.props.bgColor}}
                 onClick={() => this.props.onClick()}
             >
                 {this.props.text}
@@ -201,7 +209,6 @@ function insertPlusMinus(inputStr) {
         // of the inputStr when changing from a negative starting value to a positive starting value.
         // This transforms subtraction into addition.
         else if (inputStr[i] === '-' && inputStr[i-1] !== 'X' && inputStr[i-1] !== '/' && inputStr.length > 2) {
-            alert(inputStr);
             copyStr += '+';
         }
 
@@ -345,4 +352,13 @@ function performOperation(operation, cur, val) {
         default:
             return cur;
     }
+}
+
+function isOperation(c) {
+    let translatedCharacter = c - 48;
+    if ((translatedCharacter >= 0 && translatedCharacter <= 9) || c === '.') {
+        return true;
+    }
+
+    return false;
 }
