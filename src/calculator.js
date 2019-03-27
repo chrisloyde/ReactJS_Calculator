@@ -60,6 +60,7 @@ export default class Calculator extends Component {
                         {this.renderInputButton('.')}
                         {this.renderOperationButton('+')}
                     </div>
+                    version: 1.0.1
                 </div>
             </div>
         )
@@ -109,7 +110,9 @@ export default class Calculator extends Component {
         this.setState({result: ""});
         // S and =s are added after the fact os parseString knows how to read the operation.
         // S represents the start, equals represents the end.
-        let result = parseString('S'+newOperations+'=');
+        // A 0 is added directly after S to give a "starting number" so starting negative numbers are evaluated
+        // properly for multiplication and division.
+        let result = parseString('S0'+newOperations+'=');
         this.setState({result: result});
 
     }
