@@ -1,4 +1,4 @@
-** App is currently live:** [Link to Live](https://calculator.petersonchris.me) with build version 1.0.0!
+[**App is currently live: build version 1.0.0!**](https://calculator.petersonchris.me)
  
 
  A simple project to learn and study ReactJS. The goal is to create a simple and functional ReactJS calculator app
