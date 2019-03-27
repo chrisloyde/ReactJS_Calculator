@@ -1,7 +1,8 @@
 {
   "name": "reactjs_calculator",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
